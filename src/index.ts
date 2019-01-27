@@ -1,18 +1,10 @@
 import { logger } from './logger';
+import { setupScreen } from './screen';
 
 const debug = logger('index.ts');
 
-window.onload = () => {
+window.onload = async () => {
   debug('window loaded');
 
-  const label = createLabel('Typescript running!');
-  document.body.append(label);
-
-  debug('added label');
-};
-
-export const createLabel = (text: string) => {
-  const label = document.createElement('h1');
-  label.textContent = text;
-  return label;
+  setupScreen();
 };

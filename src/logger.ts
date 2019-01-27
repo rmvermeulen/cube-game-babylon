@@ -1,8 +1,7 @@
 import debug from 'debug';
 
-const appName = 'my-app';
+const appName = 'app';
 
-// localStorage.debug = `${appNamespace}:*`;
+localStorage.debug = `${appName}:*`;
 
-export const logger = (namespace: string) =>
-  debug(`${appName}:${namespace}`);
+export const logger = (namespace: string) => debug(`${appName}:${namespace}`);
