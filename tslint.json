@@ -13,6 +13,7 @@
         "grouped-imports": true
       }
     ],
-    "interface-name": false
+    "interface-name": false,
+    "file-name-casing": [true, "camel-case"]
   }
 }
