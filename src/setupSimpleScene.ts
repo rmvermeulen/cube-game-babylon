@@ -21,7 +21,7 @@ interface Cell {
   active: boolean;
 }
 class CubeGrid {
-  private cells:  Cell[][][];
+  private cells: Cell[][][];
   constructor(public readonly size: number) {
     const doSize: DoTimes = (fn) => times(fn, size);
 
@@ -67,14 +67,14 @@ export const setupSimpleScene = (scene: Scene) => {
   const cube = new CubeGrid(cubeSize);
   let count = 0;
 
-  // const getName = ({ x, y, z }: Cell) => [x, y, z].join();
+  const getName = ({ x, y, z }: Cell) => [x, y, z].join();
 
   const meshes: Mesh[] = [];
   cube.forEachActive((cell) => {
     ++count;
     // console.log(cell);
 
-    const mesh = MeshBuilder.CreateBox(undefined,/*`box-${getName(cell)}`*/, {
+    const mesh = MeshBuilder.CreateBox(`box-${getName(cell)}`, {
       size: scale,
     });
     mesh.position.set(cell.x, cell.y, cell.z).scaleInPlace(scale);
