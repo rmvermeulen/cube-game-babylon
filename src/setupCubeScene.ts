@@ -10,7 +10,7 @@ import { logger } from './logger';
 
 const debug = logger('mediocre-scene');
 
-export const setupMediocreScene = (
+export const setupCubeScene = (
   scene: Scene,
   keys: Combokeys.Combokeys,
 ): (() => void) => {

@@ -4,7 +4,7 @@ import Combokeys from 'combokeys';
 import { createGUI } from './createGUI';
 import { logger } from './logger';
 import { setupCamera } from './setupCamera';
-import { setupMediocreScene } from './setupMediocreScene';
+import { setupCubeScene } from './setupCubeScene';
 
 const debug = logger('screen');
 
@@ -29,7 +29,7 @@ export const setupScreen = () => {
   const scene = new Scene(engine);
 
   // const updateScene = setupSimpleScene(scene, keys);
-  const updateScene = setupMediocreScene(scene, keys);
+  const updateScene = setupCubeScene(scene, keys);
   createGUI(scene, keys);
   setupCamera(scene, canvas);
   // const mainCamera = new Camera('main', new Vector3(0, 0, 5), scene);
