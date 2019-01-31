@@ -28,8 +28,8 @@ export const setupScreen = () => {
   const engine = new Engine(canvas, true); // Generate the BABYLON 3D engine
   const scene = new Scene(engine);
 
-  // const update = setupSimpleScene(scene, keys);
-  const update = setupMediocreScene(scene, keys);
+  // const updateScene = setupSimpleScene(scene, keys);
+  const updateScene = setupMediocreScene(scene, keys);
   createGUI(scene, keys);
   setupCamera(scene, canvas);
   // const mainCamera = new Camera('main', new Vector3(0, 0, 5), scene);
@@ -37,7 +37,7 @@ export const setupScreen = () => {
 
 
   engine.runRenderLoop(() => {
-    update();
+    updateScene();
     scene.render();
   });
 
