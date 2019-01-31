@@ -30,7 +30,7 @@ export const setupScreen = () => {
 
   // const updateScene = setupSimpleScene(scene, keys);
   const updateScene = setupCubeScene(scene, keys);
-  createGUI(scene, keys);
+  createGUI(scene, keys, engine);
   setupCamera(scene, canvas);
   // const mainCamera = new Camera('main', new Vector3(0, 0, 5), scene);
   // mainCamera.attachControl(canvas, true);
@@ -40,6 +40,8 @@ export const setupScreen = () => {
     updateScene();
     scene.render();
   });
+
+
 
   // Watch for browser/canvas resize events
   window.addEventListener('resize', () => {

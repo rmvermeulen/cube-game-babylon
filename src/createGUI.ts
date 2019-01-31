@@ -1,10 +1,14 @@
-import { Scene } from 'babylonjs';
+import { Engine, Scene } from 'babylonjs';
 import { AdvancedDynamicTexture, Button, Control } from 'babylonjs-gui';
 
 import { logger } from './logger';
 
 const debug = logger('gui');
-export const createGUI = (scene: Scene, keys: Combokeys.Combokeys) => {
+export const createGUI = (
+  scene: Scene,
+  keys: Combokeys.Combokeys,
+  engine: Engine,
+) => {
   const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI(
     'UI',
     true,
@@ -20,5 +24,6 @@ export const createGUI = (scene: Scene, keys: Combokeys.Combokeys) => {
 
   button.onPointerUpObservable.add(() => {
     debug('click');
+    engine.stopRenderLoop();
   });
 };
