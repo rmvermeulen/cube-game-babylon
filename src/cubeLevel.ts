@@ -4,7 +4,7 @@ import { times } from 'ramda';
 
 import { CubeMap } from './cubeMap';
 
-interface CubeSide {
+export interface CubeSide {
   id: number;
   north?: CubeSide;
   south?: CubeSide;
@@ -32,7 +32,7 @@ const createSide = (size: number) => (id: number): CubeSide => ({
   id,
 });
 
-const createLevelData = (size: number): LevelData => {
+export const createLevelData = (size: number): LevelData => {
   const sides = generate(6, createSide(size));
   const [front, left, back, right, top, bottom] = sides;
   // connect sides
@@ -75,9 +75,12 @@ const createLevelData = (size: number): LevelData => {
 
   return { size, front, left, back, right, top, bottom };
 };
+
+type Direction = 'left' | 'right' | 'up' | 'down';
+
 export class CubeLevel {
   private mesh: Mesh;
-  private direction: null | 'left' | 'right' | 'up' | 'down';
+  private direction: null | Direction;
   private rotation: number;
   private mapData: LevelData;
   private cubeMap: CubeMap;
@@ -112,7 +115,7 @@ export class CubeLevel {
   public isSpinning() {
     return !this.direction;
   }
-  public rotate(direction: 'left' | 'right' | 'up' | 'down') {
+  public rotate(direction: Direction) {
     if (this.isSpinning()) {
       return;
     }
@@ -133,9 +136,5 @@ export class CubeLevel {
   public translateMapPosition(pos: Vector2): Vector3 {
     assert(this.cubeMap);
     return new Vector3();
-  }
-
-  private isPosInsideMap(pos: Vector2): boolean {
-    return false;
   }
 }

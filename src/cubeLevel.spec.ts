@@ -1,18 +1,11 @@
 import { Vector2 } from 'babylonjs';
 
-import { createLevelData, CubeLevel } from './cubeLevel';
-
-const doN = (n: number, fn: () => any) => {
-  while (--n) {
-    fn();
-  }
-};
+import { CubeLevel } from './cubeLevel';
 
 describe('The Cube-shaped level', () => {
-  let cube: CubeLevel<10>;
+  let cube: CubeLevel;
   beforeAll(() => {
-    const data = createLevelData(10);
-    cube = new CubeLevel(data);
+    cube = new CubeLevel(10);
   });
 
   it('can be constructed', () => {

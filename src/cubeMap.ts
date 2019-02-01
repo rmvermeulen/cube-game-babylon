@@ -1,11 +1,12 @@
-import { allPass } from 'ramda';
+import { assert } from 'chai';
+import { allPass, anyPass, flip } from 'ramda';
 
-import { LevelData } from './cubeLevel';
+import { CubeSide, LevelData } from './cubeLevel';
 
 type Point = Record<'x' | 'y', number>;
 type Size = Record<'width' | 'height', number>;
 
-const inBounds = ({ width, height, ...pos }: Rect) => ({
+export const containedIn = ({ width, height, ...pos }: Rect) => ({
   x,
   y,
 }: Point): boolean => {
@@ -13,9 +14,10 @@ const inBounds = ({ width, height, ...pos }: Rect) => ({
   y -= pos.y;
   return x >= 0 && x < width && y < height && y >= 0;
 };
+export const containsPos = (p: Point) => (r: Rect) => containedIn(r)(p);
 
 type Rect = Point & Size;
-const rect = (data: Partial<Rect>): Rect => ({
+export const rect = (data: Partial<Rect>): Rect => ({
   x: data.x || 0,
   y: data.y || 0,
   width: data.width || 0,
@@ -33,6 +35,17 @@ const rect = (data: Partial<Rect>): Rect => ({
  * 4 left
  * 5 bottom
  */
+
+type SideName = 'top' | 'front' | 'right' | 'back' | 'left' | 'bottom';
+const cubeSideNames: SideName[] = [
+  'top',
+  'front',
+  'right',
+  'back',
+  'left',
+  'bottom',
+];
+
 export class CubeMap {
   /**
    * shapes used to check collision
@@ -65,9 +78,9 @@ export class CubeMap {
       width: 3,
       height: 1,
     });
-    this.checkBarShapes = allPass([
-      inBounds(horizontalBar),
-      inBounds(verticalBar),
+    this.checkBarShapes = anyPass([
+      containedIn(horizontalBar),
+      containedIn(verticalBar),
     ]);
     this.barShapes = {
       s015: verticalBar,
@@ -87,24 +100,24 @@ export class CubeMap {
   // pos must be contained in this map
   // result will be contained in this map
   public takeStep(pos: Point, step: Point): Point {
-    if (!this.contains(pos)) {
-      throw new Error('Start position outside of map');
-    }
     const side = this.findSide(pos);
-    if (!side) {
-      throw new Error('WTF impossible');
-    }
+    assert(side, 'Point contained but no side found?!');
     // TODO: take step
     return pos;
   }
   public contains(point: Point): boolean {
     return this.checkBarShapes(point);
   }
+  public findSide(pos: Point) {
+    assert(this.contains(pos), 'Start position outside of map');
+    return this._findSide(pos);
+  }
 
-  private findSide(pos: Point): [keyof CubeMap['sides'], Rect] | undefined {
-    const entries = Object.entries(this.sides) as Array<
-      [keyof CubeMap['sides'], Rect]
-    >;
-    return entries.find(([, bounds]) => inBounds(bounds)(pos));
+  /** @param {Point} pos - Must be contained */
+  private _findSide(pos: Point): SideName {
+    const sides = Object.values(this.sides);
+    const entry = sides.findIndex(containsPos(pos))!;
+    console.log({ entry });
+    return cubeSideNames[entry];
   }
 }
