@@ -6,11 +6,26 @@ import {
   Space,
   StandardMaterial,
   Texture,
-  Vector2,
   Vector3,
 } from 'babylonjs';
 import * as _ from 'lodash';
-import { clamp, filter, map, prop } from 'ramda';
+import {
+  applyTo,
+  binary,
+  clamp,
+  equals,
+  evolve,
+  filter,
+  flip,
+  map,
+  mapObjIndexed,
+  pick,
+  pipe,
+  prop,
+  propEq,
+  reject,
+  tap,
+} from 'ramda';
 
 import { logger } from './logger';
 
@@ -56,27 +71,6 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
     rotation: 0,
   };
 
-  keys.bind('w', () => {
-    if (!cube.direction) {
-      cube.direction = 'up';
-    }
-  });
-  keys.bind('a', () => {
-    if (!cube.direction) {
-      cube.direction = 'left';
-    }
-  });
-  keys.bind('s', () => {
-    if (!cube.direction) {
-      cube.direction = 'down';
-    }
-  });
-  keys.bind('d', () => {
-    if (!cube.direction) {
-      cube.direction = 'right';
-    }
-  });
-
   const player = MeshBuilder.CreateSphere('player', { diameter: 0.3 }, scene);
   player.position.z += 4;
   const trackers = {
@@ -91,6 +85,8 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
     x: clamp(-offset, offset),
     y: clamp(-offset, offset),
   };
+
+  let ppCosFactor = 0;
 
   const ps = '';
   let updateFn;
@@ -107,31 +103,41 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
 
       const deg = (n: number) => n * (Math.PI / 180);
 
-      const playerSpeed = 1 / 20;
+      const cosFactor = Math.cos(deg(cube.rotation));
+      const playerSpeed = 2 * (ppCosFactor - cosFactor);
+      ppCosFactor = cosFactor;
 
       switch (cube.direction) {
         case 'left': {
           cube.mesh.rotate(Vector3.Up(), deg(step), Space.WORLD);
-          skybox.rotate(Vector3.Up(), deg(step), Space.WORLD);
-          player.position.x += playerSpeed;
+          skybox.rotate(Vector3.Up(), deg(step) * 0.9, Space.WORLD);
+          if (!reset) {
+            player.position.x += playerSpeed;
+          }
           break;
         }
         case 'right': {
           cube.mesh.rotate(Vector3.Up(), -deg(step), Space.WORLD);
-          skybox.rotate(Vector3.Up(), -deg(step), Space.WORLD);
-          player.position.x -= playerSpeed;
+          skybox.rotate(Vector3.Up(), -deg(step) * 0.7, Space.WORLD);
+          if (!reset) {
+            player.position.x -= playerSpeed;
+          }
           break;
         }
         case 'up': {
           cube.mesh.rotate(Vector3.Left(), deg(step), Space.WORLD);
-          skybox.rotate(Vector3.Left(), deg(step), Space.WORLD);
-          player.position.y += playerSpeed;
+          skybox.rotate(Vector3.Left(), deg(step) * 0.3, Space.WORLD);
+          if (!reset) {
+            player.position.y += playerSpeed;
+          }
           break;
         }
         case 'down': {
           cube.mesh.rotate(Vector3.Left(), -deg(step), Space.WORLD);
-          skybox.rotate(Vector3.Left(), -deg(step), Space.WORLD);
-          player.position.y -= playerSpeed;
+          skybox.rotate(Vector3.Left(), -deg(step) * 1.2, Space.WORLD);
+          if (!reset) {
+            player.position.y -= playerSpeed;
+          }
           break;
         }
       }
@@ -154,7 +160,44 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
         player.translate(playerStep, 1 / 60);
       }
     }
-    _.update(player.position, 'x', clampPlayer.x);
-    _.update(player.position, 'y', clampPlayer.y);
+
+    const jp = (...values: any[]) => {
+      const [theOneThing, isList] = values;
+      const target = isList ? values : theOneThing;
+      const msg =
+        typeof target === 'function'
+          ? target.toString()
+          : JSON.stringify(target, null, 2);
+      debug(msg);
+    };
+
+    const { position } = player;
+
+    const atBounds = pipe(
+      pick<Vector3, 'x' | 'y'>(['x', 'y']),
+      evolve(clampPlayer),
+      mapObjIndexed(
+        pipe(
+          (value: number, key: string) => (pos: any) =>
+            Math.sign(value - pos[key]),
+          applyTo(position),
+        ),
+      ),
+    )(position);
+
+    _.update(position, 'x', clampPlayer.x);
+    _.update(position, 'y', clampPlayer.y);
+
+    if (!cube.direction) {
+      if (atBounds.x > 0) {
+        cube.direction = 'left';
+      } else if (atBounds.x < 0) {
+        cube.direction = 'right';
+      } else if (atBounds.y > 0) {
+        cube.direction = 'up';
+      } else if (atBounds.y < 0) {
+        cube.direction = 'down';
+      }
+    }
   });
 };
