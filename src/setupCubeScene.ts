@@ -8,7 +8,7 @@ import {
   Texture,
   Vector3,
 } from 'babylonjs';
-import _ from 'lodash';
+import * as _ from 'lodash';
 import {
   applyTo,
   clamp,
@@ -22,7 +22,7 @@ import {
 
 import { logger } from './logger';
 
-const debug = logger('mediocre-scene');
+const debug = logger('cube-scene');
 type Keys = Combokeys.Combokeys;
 
 const trackKey = (keys: Keys, keyName: string) => {
@@ -43,13 +43,13 @@ const trackKey = (keys: Keys, keyName: string) => {
 type Tracker = ReturnType<typeof trackKey>;
 
 export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
-  const light1 = new HemisphericLight('light1', new Vector3(1, 1, 0), scene);
+  // tslint:disable-next-line:no-unused-expression
+  new HemisphericLight('light1', new Vector3(1, 1, 0), scene);
 
   // Skybox
   const skybox = MeshBuilder.CreateBox('skyBox', { size: -20.0 }, scene);
   const skyboxMaterial = new StandardMaterial('skyBox', scene);
   skyboxMaterial.backFaceCulling = true;
-  // skyboxMaterial.reflectionTexture = new CubeTexture('assets/skybox', scene);
   skyboxMaterial.reflectionTexture = new CubeTexture(
     'assets/stormydays',
     scene,
@@ -81,13 +81,11 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
     y: clamp(-offset, offset),
   };
 
-  const ps = '';
-  let updateFn;
-  return (updateFn = () => {
-    skybox.rotate(Vector3.Up(), 5 / 1e4);
+  return () => {
+    skybox.rotate(Vector3.Down(), 2 / 1e4);
     if (cube.direction) {
       let reset = false;
-      let step = 2;
+      let step = 5;
 
       cube.rotation += step;
       if (cube.rotation > 90) {
@@ -158,16 +156,6 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
       }
     }
 
-    const jp = (...values: any[]) => {
-      const [theOneThing, isList] = values;
-      const target = isList ? values : theOneThing;
-      const msg =
-        typeof target === 'function'
-          ? target.toString()
-          : JSON.stringify(target, null, 2);
-      debug(msg);
-    };
-
     const { position } = player;
 
     const atBounds = pipe(
@@ -188,13 +176,17 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
     if (!cube.direction) {
       if (atBounds.x > 0) {
         cube.direction = 'left';
+        debug('spin world left');
       } else if (atBounds.x < 0) {
         cube.direction = 'right';
+        debug('spin world right');
       } else if (atBounds.y > 0) {
         cube.direction = 'up';
+        debug('spin world up');
       } else if (atBounds.y < 0) {
         cube.direction = 'down';
+        debug('spin world down');
       }
     }
-  });
+  };
 };

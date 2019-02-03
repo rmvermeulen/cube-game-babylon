@@ -35,13 +35,10 @@ export const setupScreen = () => {
   // const mainCamera = new Camera('main', new Vector3(0, 0, 5), scene);
   // mainCamera.attachControl(canvas, true);
 
-
   engine.runRenderLoop(() => {
     updateScene();
     scene.render();
   });
-
-
 
   // Watch for browser/canvas resize events
   window.addEventListener('resize', () => {

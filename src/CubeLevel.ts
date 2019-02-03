@@ -79,16 +79,24 @@ export const createLevelData = (size: number): LevelData => {
 type Direction = 'left' | 'right' | 'up' | 'down';
 
 export class CubeLevel {
-  private mesh: Mesh;
+  private _mesh: Mesh;
   private direction: null | Direction;
-  private rotation: number;
+  private _rotation: number;
   private mapData: LevelData;
   private cubeMap: CubeMap;
 
+  public get mesh() {
+    return this._mesh;
+  }
+
+  public get rotation() {
+    return this._rotation;
+  }
+
   constructor(size: number) {
-    this.mesh = MeshBuilder.CreateBox('cube', { size: 3 });
+    this._mesh = MeshBuilder.CreateBox('cube', { size: 3 });
     this.direction = null;
-    this.rotation = 0;
+    this._rotation = 0;
     this.mapData = createLevelData(size);
     this.cubeMap = new CubeMap(this.mapData);
   }

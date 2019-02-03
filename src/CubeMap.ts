@@ -1,7 +1,7 @@
 import { assert } from 'chai';
-import { allPass, anyPass, flip } from 'ramda';
+import { anyPass } from 'ramda';
 
-import { CubeSide, LevelData } from './cubeLevel';
+import { LevelData } from './cubeLevel';
 
 type Point = Record<'x' | 'y', number>;
 type Size = Record<'width' | 'height', number>;
@@ -47,15 +47,6 @@ const cubeSideNames: SideName[] = [
 ];
 
 export class CubeMap {
-  /**
-   * shapes used to check collision
-   * efficiently with this cube's part of the map
-   */
-  private barShapes: {
-    s015: Rect;
-    s234: Rect;
-  };
-
   private sides: {
     top: Rect;
     front: Rect;
@@ -67,7 +58,7 @@ export class CubeMap {
 
   private checkBarShapes: (pos: Point) => boolean;
 
-  constructor(private data: LevelData) {
+  constructor(data: LevelData) {
     const verticalBar = rect({
       width: 1,
       height: 3,
@@ -82,10 +73,7 @@ export class CubeMap {
       containedIn(horizontalBar),
       containedIn(verticalBar),
     ]);
-    this.barShapes = {
-      s015: verticalBar,
-      s234: horizontalBar,
-    };
+
     this.sides = {
       top: rect({}),
       front: rect({ y: 1 }),

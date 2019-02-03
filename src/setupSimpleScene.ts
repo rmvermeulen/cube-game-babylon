@@ -1,16 +1,8 @@
-import {
-  HemisphericLight,
-  Mesh,
-  MeshBuilder,
-  PointerDragBehavior,
-  Scene,
-  Vector3,
-} from 'babylonjs';
-import { equals, flip, propEq, repeat, times } from 'ramda';
+import { HemisphericLight, Mesh, MeshBuilder, Scene, Vector3 } from 'babylonjs';
+import { times } from 'ramda';
 
-import { logger } from './logger';
-
-const debug = logger('simple-scene');
+// import { logger } from './logger';
+// const debug = logger('simple-scene');
 
 type DoTimes = <T extends {}>(factory: (n: number) => T) => T[];
 
@@ -55,7 +47,8 @@ class CubeGrid {
 }
 
 export const setupSimpleScene = (scene: Scene) => {
-  const light1 = new HemisphericLight('light1', new Vector3(1, 1, 0), scene);
+  // tslint:disable-next-line:no-unused-expression
+  new HemisphericLight('light1', new Vector3(1, 1, 0), scene);
 
   // const sphere = MeshBuilder.CreateSphere('sphere', { diameter: 2 }, scene);
   // const torus = MeshBuilder.CreateTorus('torus', { thickness: 0.2 }, scene);
