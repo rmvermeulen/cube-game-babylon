@@ -718,13 +718,6 @@
   dependencies:
     any-observable "^0.3.0"
 
-"@types/babylonjs@^2.4.1":
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/@types/babylonjs/-/babylonjs-2.4.1.tgz#432e9a40777bca5aefec118af018ff57fb1098da"
-  integrity sha1-Qy6aQHd7ylrv7BGK8Bj/V/sQmNo=
-  dependencies:
-    babylonjs "*"
-
 "@types/chai@^4.1.7":
   version "4.1.7"
   resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.1.7.tgz#1b8e33b61a8c09cbe1f85133071baa0dbf9fa71a"
@@ -1219,10 +1212,15 @@ babylonjs-gui@^3.3.0:
   dependencies:
     babylonjs "3.3.0"
 
-babylonjs@*, babylonjs@3.3.0, babylonjs@^3.3.0:
+babylonjs@3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/babylonjs/-/babylonjs-3.3.0.tgz#f7636c3761cc3260dac8adf26767bc6323e74181"
   integrity sha512-3Gn9kAEPejJN4+HMKGAKbhsCsrysvaORqi07Bdr9Xmy3KRt/BxyGwepzfcqFIe8+94SWszPDeJC9peICfHdCKw==
+
+babylonjs@^4.0.0-alpha.22:
+  version "4.0.0-alpha.22"
+  resolved "https://registry.yarnpkg.com/babylonjs/-/babylonjs-4.0.0-alpha.22.tgz#c8edd8bb712c2da84923310a049bcf7b94f54608"
+  integrity sha512-7ntdVuK6WkPnd91wfjEb9tvsymSXpLpFtnkDl+GD6GRz3K0cHn3X4z3/o+jy4N2iSkvhlNKouvJguBJpM2/xKg==
 
 balanced-match@^0.4.2:
   version "0.4.2"

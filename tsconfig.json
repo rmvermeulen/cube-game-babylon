@@ -1,12 +1,15 @@
 {
   "include": ["src/**/*.ts"],
-  "exclude": ["**/node_modules", "src/**/*.spec.ts"],
+  "exclude": ["node_modules/*", "src/**/*.spec.ts"],
   "compilerOptions": {
     "target": "es5",
     "module": "esnext",
     "lib": ["esnext", "dom"],
     "strict": true,
     "types": ["babylonjs", "babylonjs-gui"],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "noUnusedLocals": true,
+    "noEmit": true
   }
 }

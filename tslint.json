@@ -14,6 +14,11 @@
       }
     ],
     "interface-name": false,
-    "file-name-casing": [true, "camel-case"]
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "check-format",
+      "allow-leading-underscore"
+    ]
   }
 }

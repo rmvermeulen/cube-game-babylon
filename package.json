@@ -6,11 +6,11 @@
     "test": "jest",
     "serve": "parcel server src/index.html",
     "build": "parcel build src/index.html",
-    "lint": "tslint -p tsconfig.json"
+    "lint": "tslint -p tsconfig.json",
+    "check-build": "tsc -p tsconfig.json --pretty"
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/babylonjs": "^2.4.1",
     "@types/chai": "^4.1.7",
     "@types/combokeys": "^2.4.6",
     "@types/debug": "^0.0.31",
@@ -37,7 +37,7 @@
     "utility-types": "^3.4.1"
   },
   "dependencies": {
-    "babylonjs": "^3.3.0",
+    "babylonjs": "^4.0.0-alpha.22",
     "babylonjs-gui": "^3.3.0",
     "combokeys": "^3.0.0",
     "lodash": "^4.17.11",
