@@ -8,23 +8,16 @@ import {
   Texture,
   Vector3,
 } from 'babylonjs';
-import * as _ from 'lodash';
+import _ from 'lodash';
 import {
   applyTo,
-  binary,
   clamp,
-  equals,
   evolve,
-  filter,
-  flip,
   map,
   mapObjIndexed,
   pick,
   pipe,
   prop,
-  propEq,
-  reject,
-  tap,
 } from 'ramda';
 
 import { logger } from './logger';
@@ -65,14 +58,16 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
   skyboxMaterial.disableLighting = true;
   skybox.material = skyboxMaterial;
 
+  const cubeSize = 3;
   const cube = {
-    mesh: MeshBuilder.CreateBox('cube', { size: 3 }),
+    mesh: MeshBuilder.CreateBox('cube', { size: cubeSize }),
     direction: null as null | 'left' | 'right' | 'up' | 'down',
     rotation: 0,
   };
 
   const player = MeshBuilder.CreateSphere('player', { diameter: 0.3 }, scene);
-  player.position.z += 4;
+  const playerZ = cubeSize + 1;
+  player.position.z += playerZ;
   const trackers = {
     up: trackKey(keys, 'up'),
     left: trackKey(keys, 'left'),
@@ -86,8 +81,6 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
     y: clamp(-offset, offset),
   };
 
-  let ppCosFactor = 0;
-
   const ps = '';
   let updateFn;
   return (updateFn = () => {
@@ -95,49 +88,47 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
     if (cube.direction) {
       let reset = false;
       let step = 2;
+
       cube.rotation += step;
       if (cube.rotation > 90) {
         step -= cube.rotation - 90;
         reset = true;
       }
 
-      const deg = (n: number) => n * (Math.PI / 180);
-
-      const cosFactor = Math.cos(deg(cube.rotation));
-      const playerSpeed = 2 * (ppCosFactor - cosFactor);
-      ppCosFactor = cosFactor;
+      const radianStep = (step * Math.PI) / 180;
 
       switch (cube.direction) {
         case 'left': {
-          cube.mesh.rotate(Vector3.Up(), deg(step), Space.WORLD);
-          skybox.rotate(Vector3.Up(), deg(step) * 0.9, Space.WORLD);
-          if (!reset) {
-            player.position.x += playerSpeed;
-          }
+          cube.mesh.rotate(Vector3.Up(), radianStep, Space.WORLD);
+          player.rotateAround(Vector3.Zero(), Vector3.Up(), radianStep * 0.25);
+          skybox.rotate(Vector3.Up(), radianStep * 0.9, Space.WORLD);
           break;
         }
         case 'right': {
-          cube.mesh.rotate(Vector3.Up(), -deg(step), Space.WORLD);
-          skybox.rotate(Vector3.Up(), -deg(step) * 0.7, Space.WORLD);
-          if (!reset) {
-            player.position.x -= playerSpeed;
-          }
+          cube.mesh.rotate(Vector3.Up(), -radianStep, Space.WORLD);
+          player.rotateAround(Vector3.Zero(), Vector3.Up(), -radianStep * 0.25);
+          skybox.rotate(Vector3.Up(), -radianStep * 0.7, Space.WORLD);
           break;
         }
         case 'up': {
-          cube.mesh.rotate(Vector3.Left(), deg(step), Space.WORLD);
-          skybox.rotate(Vector3.Left(), deg(step) * 0.3, Space.WORLD);
-          if (!reset) {
-            player.position.y += playerSpeed;
-          }
+          cube.mesh.rotate(Vector3.Left(), radianStep, Space.WORLD);
+          player.rotateAround(
+            Vector3.Zero(),
+            Vector3.Left(),
+            radianStep * 0.25,
+          );
+          skybox.rotate(Vector3.Left(), radianStep * 0.3, Space.WORLD);
           break;
         }
         case 'down': {
-          cube.mesh.rotate(Vector3.Left(), -deg(step), Space.WORLD);
-          skybox.rotate(Vector3.Left(), -deg(step) * 1.2, Space.WORLD);
-          if (!reset) {
-            player.position.y -= playerSpeed;
-          }
+          cube.mesh.rotate(Vector3.Left(), -radianStep, Space.WORLD);
+          player.rotateAround(
+            Vector3.Zero(),
+            Vector3.Left(),
+            -radianStep * 0.25,
+          );
+
+          skybox.rotate(Vector3.Left(), -radianStep * 1.2, Space.WORLD);
           break;
         }
       }
@@ -145,6 +136,12 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
       if (reset) {
         cube.direction = null;
         cube.rotation = 0;
+        player.position.z = playerZ;
+
+        const quaternion = player.rotationQuaternion;
+        if (quaternion) {
+          quaternion.set(0, 0, 0, 0);
+        }
       }
     } else {
       const heldKeys = map(prop<Tracker, 'isHeld'>('isHeld'), trackers);
