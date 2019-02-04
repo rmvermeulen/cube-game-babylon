@@ -1,8 +1,6 @@
 import { assert } from 'chai';
 import { anyPass } from 'ramda';
 
-import { LevelData } from './cubeLevel';
-
 type Point = Record<'x' | 'y', number>;
 type Size = Record<'width' | 'height', number>;
 
@@ -58,7 +56,7 @@ export class CubeMap {
 
   private checkBarShapes: (pos: Point) => boolean;
 
-  constructor(data: LevelData) {
+  constructor(data: {}) {
     const verticalBar = rect({
       width: 1,
       height: 3,
@@ -84,15 +82,6 @@ export class CubeMap {
     };
   }
 
-  // attempt a step starting at pos
-  // pos must be contained in this map
-  // result will be contained in this map
-  public takeStep(pos: Point, step: Point): Point {
-    const side = this.findSide(pos);
-    assert(side, 'Point contained but no side found?!');
-    // TODO: take step
-    return pos;
-  }
   public contains(point: Point): boolean {
     return this.checkBarShapes(point);
   }
