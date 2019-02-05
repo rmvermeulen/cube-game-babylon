@@ -1,7 +1,9 @@
 import {
   CubeTexture,
   HemisphericLight,
+  Mesh,
   MeshBuilder,
+  Orientation,
   Scene,
   Space,
   StandardMaterial,
@@ -21,6 +23,7 @@ import {
 } from 'ramda';
 
 import { logger } from './logger';
+import { MultiCube } from './MultiCube';
 
 const debug = logger('cube-scene');
 type Keys = Combokeys.Combokeys;
@@ -47,7 +50,12 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
   new HemisphericLight('light1', new Vector3(1, 1, 0), scene);
 
   // Skybox
-  const skybox = MeshBuilder.CreateBox('skyBox', { size: -20.0 }, scene);
+  const skyboxSize = 200;
+  const skybox = MeshBuilder.CreateBox(
+    'skyBox',
+    { size: skyboxSize, sideOrientation: Orientation.CCW },
+    scene,
+  );
   const skyboxMaterial = new StandardMaterial('skyBox', scene);
   skyboxMaterial.backFaceCulling = true;
   skyboxMaterial.reflectionTexture = new CubeTexture(
@@ -58,15 +66,38 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
   skyboxMaterial.disableLighting = true;
   skybox.material = skyboxMaterial;
 
+  // const halfPI = Math.PI / 2;
   const cubeSize = 3;
+  // const structureDiameter = 15;
+  const mc = new MultiCube(scene, 5, cubeSize);
   const cube = {
-    mesh: MeshBuilder.CreateBox('cube', { size: cubeSize }),
+    mesh: Mesh.MergeMeshes([
+      // MeshBuilder.CreateBox('cube', { size: cubeSize }),
+      mc.mesh,
+      // Mesh.MergeMeshes([
+      //   MeshBuilder.CreateTorus(
+      //     'torus1',
+      //     { diameter: structureDiameter },
+      //     scene,
+      //   ),
+      //   MeshBuilder.CreateTorus(
+      //     'torus1.1',
+      //     { diameter: structureDiameter * 1.1 },
+      //     scene,
+      //   ).addRotation(0, 0, halfPI) as Mesh,
+      //   MeshBuilder.CreateTorus(
+      //     'torus1.2',
+      //     { diameter: structureDiameter * 1.2 },
+      //     scene,
+      //   ).addRotation(0, halfPI, halfPI) as Mesh,
+      // ])!.addRotation(5, 5, 5) as Mesh,
+    ]),
     direction: null as null | 'left' | 'right' | 'up' | 'down',
     rotation: 0,
   };
 
   const player = MeshBuilder.CreateSphere('player', { diameter: 0.3 }, scene);
-  const playerZ = cubeSize + 1;
+  const playerZ = cubeSize; // + 1;
   player.position.z += playerZ;
   const trackers = {
     up: trackKey(keys, 'up'),
