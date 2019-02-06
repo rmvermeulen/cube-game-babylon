@@ -66,38 +66,16 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
   skyboxMaterial.disableLighting = true;
   skybox.material = skyboxMaterial;
 
-  // const halfPI = Math.PI / 2;
   const cubeSize = 3;
-  // const structureDiameter = 15;
   const mc = new MultiCube(scene, 5, cubeSize);
   const cube = {
-    mesh: Mesh.MergeMeshes([
-      // MeshBuilder.CreateBox('cube', { size: cubeSize }),
-      mc.mesh,
-      // Mesh.MergeMeshes([
-      //   MeshBuilder.CreateTorus(
-      //     'torus1',
-      //     { diameter: structureDiameter },
-      //     scene,
-      //   ),
-      //   MeshBuilder.CreateTorus(
-      //     'torus1.1',
-      //     { diameter: structureDiameter * 1.1 },
-      //     scene,
-      //   ).addRotation(0, 0, halfPI) as Mesh,
-      //   MeshBuilder.CreateTorus(
-      //     'torus1.2',
-      //     { diameter: structureDiameter * 1.2 },
-      //     scene,
-      //   ).addRotation(0, halfPI, halfPI) as Mesh,
-      // ])!.addRotation(5, 5, 5) as Mesh,
-    ]),
+    mesh: mc.rootNode,
     direction: null as null | 'left' | 'right' | 'up' | 'down',
     rotation: 0,
   };
 
   const player = MeshBuilder.CreateSphere('player', { diameter: 0.3 }, scene);
-  const playerZ = cubeSize; // + 1;
+  const playerZ = cubeSize + 1;
   player.position.z += playerZ;
   const trackers = {
     up: trackKey(keys, 'up'),

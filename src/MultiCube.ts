@@ -1,4 +1,4 @@
-import { Mesh, MeshBuilder, Scene } from 'babylonjs';
+import { Mesh, MeshBuilder, Scene, TransformNode } from 'babylonjs';
 import { assert } from 'chai';
 import { __, all, either, equals, flatten, none, times } from 'ramda';
 
@@ -7,11 +7,11 @@ import { logger } from './logger';
 const debug = logger('multi-cube');
 
 export class MultiCube {
-  private _mesh?: Mesh;
+  private _rootNode?: TransformNode;
 
-  public get mesh(): Mesh {
-    assert(this._mesh);
-    return this._mesh!;
+  public get rootNode(): TransformNode {
+    assert(this._rootNode);
+    return this._rootNode!;
   }
   private cubeMap = new Map<
     string,
@@ -30,20 +30,22 @@ export class MultiCube {
     this.bind(scene);
   }
   private bind(scene: Scene) {
-    if (this._mesh) {
-      this.scene.removeMesh(this._mesh);
-      this._mesh = undefined;
+    if (this._rootNode) {
+      this.scene.removeTransformNode(this._rootNode);
+      this._rootNode = undefined;
     }
     this.scene = scene;
     // TODO: create cubes
     const cubes: Mesh[] = this.generateCubes();
 
-    const mesh = Mesh.MergeMeshes(cubes);
-    assert(mesh, 'Failed to merge meshes');
-    this._mesh = mesh!;
+    const parent = new TransformNode('multi-cube-root', scene);
+    for (const cube of cubes) {
+      cube.setParent(parent);
+    }
+    this._rootNode = parent;
 
     debug('meshes merged');
-    this.scene.addMesh(this._mesh);
+    this.scene.addTransformNode(this._rootNode);
   }
 
   private generateCubes(): Mesh[] {
@@ -88,6 +90,16 @@ export class MultiCube {
         ),
       ),
     ).filter(Boolean);
+    const rootName = 'mc-body';
+    const body = MeshBuilder.CreateBox(rootName, {
+      size: this.totalSize - 2.2 * cubeSize,
+    });
+    this.cubeMap.set(rootName, {
+      name: rootName,
+      mesh: body,
+      enabled: true,
+    });
+    meshes.unshift(body);
     return meshes;
   }
 }
