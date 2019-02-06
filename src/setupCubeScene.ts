@@ -48,6 +48,17 @@ type Tracker = ReturnType<typeof trackKey>;
 export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
   // tslint:disable-next-line:no-unused-expression
   new HemisphericLight('light1', new Vector3(1, 1, 0), scene);
+  // When click event is raised
+  window.addEventListener('click', () => {
+    // We try to pick an object
+    const { pickedMesh } = scene.pick(scene.pointerX, scene.pointerY)!;
+    if (!pickedMesh) {
+      return;
+    }
+    debug(pickedMesh.name);
+    pickedMesh.visibility = +!pickedMesh.visibility;
+    debug(pickedMesh.isVisible);
+  });
 
   // Skybox
   const skyboxSize = 200;
