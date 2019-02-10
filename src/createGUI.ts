@@ -14,7 +14,7 @@ export const createGUI = (
     true,
     scene,
   );
-  const button = Button.CreateSimpleButton('but', 'Some button');
+  const button = Button.CreateSimpleButton('but', 'Toggle camera');
   button.width = 0.2;
   button.height = '40px';
   button.color = 'white';
@@ -24,6 +24,9 @@ export const createGUI = (
 
   button.onPointerUpObservable.add(() => {
     debug('click');
-    engine.stopRenderLoop();
+    const { toggleCameraControl } = window as any;
+    if (typeof toggleCameraControl === 'function') {
+      toggleCameraControl();
+    }
   });
 };

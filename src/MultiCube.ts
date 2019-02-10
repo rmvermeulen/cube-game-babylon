@@ -1,4 +1,13 @@
-import { Mesh, MeshBuilder, Scene, TransformNode } from 'babylonjs';
+import {
+  Color3,
+  Color4,
+  Material,
+  Mesh,
+  MeshBuilder,
+  Scene,
+  TransformNode,
+  Vector3,
+} from 'babylonjs';
 import { assert } from 'chai';
 import { __, all, either, equals, flatten, none, times } from 'ramda';
 
@@ -7,12 +16,11 @@ import { logger } from './logger';
 const debug = logger('multi-cube');
 
 export class MultiCube {
-  private _rootNode?: TransformNode;
-
   public get rootNode(): TransformNode {
     assert(this._rootNode);
     return this._rootNode!;
   }
+  private _rootNode?: TransformNode;
   private cubeMap = new Map<
     string,
     {
@@ -29,6 +37,15 @@ export class MultiCube {
     debug('size before bind', this.scene, cellCount);
     this.bind(scene);
   }
+
+  public intersects(other: Mesh) {
+    for (const { mesh } of this.cubeMap.values()) {
+      if (mesh && mesh.intersectsMesh(other, true)) {
+        return true;
+      }
+    }
+    return false;
+  }
   private bind(scene: Scene) {
     if (this._rootNode) {
       this.scene.removeTransformNode(this._rootNode);
@@ -41,6 +58,7 @@ export class MultiCube {
     const parent = new TransformNode('multi-cube-root', scene);
     for (const cube of cubes) {
       cube.setParent(parent);
+      cube.checkCollisions = true;
     }
     this._rootNode = parent;
 
@@ -63,7 +81,7 @@ export class MultiCube {
           generate((x) => {
             const pos = [x, y, z];
             const isCorner = all(isEdge, pos);
-            const enabled = isCorner ? true : Math.random() > 0.5;
+            const enabled = isCorner || Math.random() > 0.7;
             // must be a corner- or edge piece
             if (!isCorner && none(isEdge, pos)) {
               return;
@@ -72,7 +90,7 @@ export class MultiCube {
             let mesh: Mesh | undefined;
             if (enabled) {
               mesh = MeshBuilder.CreateBox(name, {
-                size: cubeSize * 0.95,
+                size: cubeSize,
               });
               mesh.position.set(
                 (x - offset) * cubeSize,

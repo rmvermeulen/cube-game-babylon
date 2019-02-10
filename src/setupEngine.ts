@@ -1,4 +1,4 @@
-import { Engine, Scene } from 'babylonjs';
+import { Engine, Scene, Vector3 } from 'babylonjs';
 import Combokeys from 'combokeys';
 
 import { createGUI } from './createGUI';
@@ -6,7 +6,7 @@ import { logger } from './logger';
 import { setupCamera } from './setupCamera';
 import { setupCubeScene } from './setupCubeScene';
 
-const debug = logger('screen');
+const debug = logger('engine');
 
 const getRenderCanvas = (): HTMLCanvasElement => {
   const maybeCanvas = document.getElementById('renderCanvas');
@@ -19,14 +19,17 @@ const getRenderCanvas = (): HTMLCanvasElement => {
   return canvas;
 };
 
-export const setupScreen = () => {
+export const setupEngine = () => {
   debug('setup');
 
   const canvas = getRenderCanvas();
   const keys = new Combokeys(canvas);
 
-  const engine = new Engine(canvas, true); // Generate the BABYLON 3D engine
+  const engine = new Engine(canvas, true);
   const scene = new Scene(engine);
+
+  scene.gravity = new Vector3(0, -9.81, 0);
+  scene.collisionsEnabled = true;
 
   const updateScene = setupCubeScene(scene, keys);
   createGUI(scene, keys, engine);
@@ -39,6 +42,7 @@ export const setupScreen = () => {
 
   // Watch for browser/canvas resize events
   window.addEventListener('resize', () => {
+    debug('resizing');
     engine.resize();
   });
 

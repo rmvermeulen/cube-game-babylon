@@ -1,5 +1,5 @@
 import { logger } from './logger';
-import { setupScreen } from './screen';
+import { setupEngine } from './setupEngine';
 
 const debug = logger('index.ts');
 
@@ -13,5 +13,5 @@ window.onload = async () => {
   gWindow._game_loaded_ = true;
   debug('window loaded');
 
-  setupScreen();
+  setupEngine();
 };

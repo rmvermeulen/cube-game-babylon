@@ -1,7 +1,6 @@
 import {
   CubeTexture,
   HemisphericLight,
-  Mesh,
   MeshBuilder,
   Orientation,
   Scene,
@@ -50,14 +49,16 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
   new HemisphericLight('light1', new Vector3(1, 1, 0), scene);
   // When click event is raised
   window.addEventListener('click', () => {
+    debug('--');
     // We try to pick an object
+
     const { pickedMesh } = scene.pick(scene.pointerX, scene.pointerY)!;
     if (!pickedMesh) {
       return;
     }
     debug(pickedMesh.name);
-    pickedMesh.visibility = +!pickedMesh.visibility;
-    debug(pickedMesh.isVisible);
+
+    // pickedMesh.visibility = +!pickedMesh.visibility;
   });
 
   // Skybox
@@ -85,9 +86,16 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
     rotation: 0,
   };
 
-  const player = MeshBuilder.CreateSphere('player', { diameter: 0.3 }, scene);
-  const playerZ = cubeSize + 1;
-  player.position.z += playerZ;
+  const playerDiameter = 0.3;
+  const player = MeshBuilder.CreateSphere(
+    'player',
+    { diameter: playerDiameter },
+    scene,
+  );
+  player.checkCollisions = true;
+  const playerDistance = cubeSize / 2 - playerDiameter;
+  player.position.z += playerDistance;
+  let playerIsColliding = false;
   const trackers = {
     up: trackKey(keys, 'up'),
     left: trackKey(keys, 'left'),
@@ -95,58 +103,66 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
     right: trackKey(keys, 'right'),
   };
 
-  const offset = 0.8;
   const clampPlayer = {
-    x: clamp(-offset, offset),
-    y: clamp(-offset, offset),
+    x: clamp(-playerDistance, playerDistance),
+    y: clamp(-playerDistance, playerDistance),
   };
 
+  let lastPlayerPos = player.position.clone();
+
   return () => {
+    const playerWasColliding = playerIsColliding;
+    playerIsColliding = mc.intersects(player);
+    if (playerIsColliding !== playerWasColliding) {
+      if (playerIsColliding) {
+        debug(`player colliding`);
+        player.position = lastPlayerPos;
+      }
+      if (playerWasColliding) {
+        debug(`player no longer colliding`);
+      }
+    }
+
     skybox.rotate(Vector3.Down(), 2 / 1e4);
     if (cube.direction) {
       let reset = false;
-      let step = 5;
+      let stepSize = 5;
 
-      cube.rotation += step;
+      cube.rotation += stepSize;
       if (cube.rotation > 90) {
-        step -= cube.rotation - 90;
+        stepSize -= cube.rotation - 90;
         reset = true;
       }
 
-      const radianStep = (step * Math.PI) / 180;
+      const radianStep = (stepSize * Math.PI) / 180;
 
       switch (cube.direction) {
         case 'left': {
           cube.mesh.rotate(Vector3.Up(), radianStep, Space.WORLD);
-          player.rotateAround(Vector3.Zero(), Vector3.Up(), radianStep * 0.25);
-          skybox.rotate(Vector3.Up(), radianStep * 0.9, Space.WORLD);
+          skybox.rotate(Vector3.Up(), radianStep, Space.WORLD);
+
+          player.rotateAround(Vector3.Zero(), Vector3.Up(), radianStep);
           break;
         }
         case 'right': {
           cube.mesh.rotate(Vector3.Up(), -radianStep, Space.WORLD);
-          player.rotateAround(Vector3.Zero(), Vector3.Up(), -radianStep * 0.25);
-          skybox.rotate(Vector3.Up(), -radianStep * 0.7, Space.WORLD);
+          skybox.rotate(Vector3.Up(), -radianStep, Space.WORLD);
+
+          player.rotateAround(Vector3.Zero(), Vector3.Up(), -radianStep);
           break;
         }
         case 'up': {
           cube.mesh.rotate(Vector3.Left(), radianStep, Space.WORLD);
-          player.rotateAround(
-            Vector3.Zero(),
-            Vector3.Left(),
-            radianStep * 0.25,
-          );
-          skybox.rotate(Vector3.Left(), radianStep * 0.3, Space.WORLD);
+          skybox.rotate(Vector3.Left(), radianStep, Space.WORLD);
+
+          player.rotateAround(Vector3.Zero(), Vector3.Left(), radianStep);
           break;
         }
         case 'down': {
           cube.mesh.rotate(Vector3.Left(), -radianStep, Space.WORLD);
-          player.rotateAround(
-            Vector3.Zero(),
-            Vector3.Left(),
-            -radianStep * 0.25,
-          );
+          skybox.rotate(Vector3.Left(), -radianStep, Space.WORLD);
 
-          skybox.rotate(Vector3.Left(), -radianStep * 1.2, Space.WORLD);
+          player.rotateAround(Vector3.Zero(), Vector3.Left(), -radianStep);
           break;
         }
       }
@@ -154,7 +170,7 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
       if (reset) {
         cube.direction = null;
         cube.rotation = 0;
-        player.position.z = playerZ;
+        player.position.z = playerDistance;
 
         const quaternion = player.rotationQuaternion;
         if (quaternion) {
@@ -162,17 +178,22 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
         }
       }
     } else {
-      const heldKeys = map(prop<Tracker, 'isHeld'>('isHeld'), trackers);
+      if (!playerIsColliding) {
+        const heldKeys = map(prop<Tracker, 'isHeld'>('isHeld'), trackers);
 
-      // TODO: determine whether to bind to x,y, or z by checking currentSide of cube
-      const playerStep = new Vector3(
-        +heldKeys.left - +heldKeys.right,
-        +heldKeys.up - +heldKeys.down,
-      );
+        // TODO: determine whether to bind to x,y, or z by checking currentSide of cube
+        const playerStep = new Vector3(
+          +heldKeys.left - +heldKeys.right,
+          +heldKeys.up - +heldKeys.down,
+        );
 
-      if (playerStep.lengthSquared() > 0) {
-        playerStep.normalize();
-        player.translate(playerStep, 1 / 60);
+        if (playerStep.lengthSquared() > 0) {
+          lastPlayerPos = player.position.clone();
+          playerStep.normalize();
+          player.translate(playerStep, 1 / 60);
+          // playerStep.normalize().scaleInPlace(1 / 60);
+          // player.moveWithCollisions(playerStep);
+        }
       }
     }
 

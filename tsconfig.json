@@ -10,6 +10,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "noUnusedLocals": true,
-    "noEmit": true
+    "noEmit": true,
+    "downlevelIteration": true
   }
 }
