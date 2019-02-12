@@ -1,8 +1,11 @@
 import {
+  Color3,
   CubeTexture,
   HemisphericLight,
+  Light,
   MeshBuilder,
   Orientation,
+  PointLight,
   Scene,
   Space,
   StandardMaterial,
@@ -102,6 +105,15 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
     down: trackKey(keys, 'down'),
     right: trackKey(keys, 'right'),
   };
+  const playerLight = new PointLight(
+    'player-light',
+    new Vector3(0, 0, 0),
+    scene,
+  );
+  playerLight.range = 2;
+  playerLight.intensity = 0.2;
+  playerLight.diffuse = new Color3(3, 1, 0);
+  playerLight.parent = player;
 
   const clampPlayer = {
     x: clamp(-playerDistance, playerDistance),
@@ -126,15 +138,15 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
     skybox.rotate(Vector3.Down(), 2 / 1e4);
     if (cube.direction) {
       let reset = false;
-      let stepSize = 5;
+      let rotationStepSize = 5;
 
-      cube.rotation += stepSize;
+      cube.rotation += rotationStepSize;
       if (cube.rotation > 90) {
-        stepSize -= cube.rotation - 90;
+        rotationStepSize -= cube.rotation - 90;
         reset = true;
       }
 
-      const radianStep = (stepSize * Math.PI) / 180;
+      const radianStep = (rotationStepSize * Math.PI) / 180;
 
       switch (cube.direction) {
         case 'left': {
@@ -189,10 +201,21 @@ export const setupCubeScene = (scene: Scene, keys: Keys): (() => void) => {
 
         if (playerStep.lengthSquared() > 0) {
           lastPlayerPos = player.position.clone();
+
+          const stepSize = 1 / 60;
+
           playerStep.normalize();
-          player.translate(playerStep, 1 / 60);
-          // playerStep.normalize().scaleInPlace(1 / 60);
-          // player.moveWithCollisions(playerStep);
+          const useBabylonMovement = false;
+          if (useBabylonMovement) {
+            player.moveWithCollisions(playerStep.scale(stepSize));
+          } else {
+            player.translate(playerStep, stepSize);
+          }
+          debug(
+            'x: %i, y: %i',
+            Math.sign(playerStep.x),
+            Math.sign(playerStep.y),
+          );
         }
       }
     }
