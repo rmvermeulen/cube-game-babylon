@@ -3,6 +3,7 @@ import Combokeys from 'combokeys';
 
 import { createGUI } from './createGUI';
 import { logger } from './logger';
+import { MyScene } from './MyScene';
 import { setupCamera } from './setupCamera';
 import { setupCubeScene } from './setupCubeScene';
 
@@ -23,16 +24,16 @@ export const setupEngine = () => {
   debug('setup');
 
   const canvas = getRenderCanvas();
-  const keys = new Combokeys(canvas);
-
   const engine = new Engine(canvas, true);
-  const scene = new Scene(engine);
+
+  const combos = new Combokeys(canvas);
+  const scene = new MyScene({ engine, combos });
 
   scene.gravity = new Vector3(0, -9.81, 0);
   scene.collisionsEnabled = true;
 
-  const updateScene = setupCubeScene(scene, keys);
-  createGUI(scene, keys, engine);
+  const updateScene = setupCubeScene(scene);
+  createGUI(scene);
   setupCamera(scene, canvas);
 
   engine.runRenderLoop(() => {
@@ -46,5 +47,5 @@ export const setupEngine = () => {
     engine.resize();
   });
 
-  return { canvas, keys };
+  return { canvas, keys: combos };
 };

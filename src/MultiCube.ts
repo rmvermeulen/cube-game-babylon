@@ -1,13 +1,4 @@
-import {
-  Color3,
-  Color4,
-  Material,
-  Mesh,
-  MeshBuilder,
-  Scene,
-  TransformNode,
-  Vector3,
-} from 'babylonjs';
+import { Mesh, MeshBuilder, Scene, TransformNode } from 'babylonjs';
 import { assert } from 'chai';
 import { __, all, either, equals, flatten, none, times } from 'ramda';
 
@@ -90,7 +81,7 @@ export class MultiCube {
             let mesh: Mesh | undefined;
             if (enabled) {
               mesh = MeshBuilder.CreateBox(name, {
-                size: cubeSize,
+                size: cubeSize * 0.99,
               });
               mesh.position.set(
                 (x - offset) * cubeSize,
