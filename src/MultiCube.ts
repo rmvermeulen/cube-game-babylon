@@ -1,4 +1,10 @@
-import { Mesh, MeshBuilder, Scene, TransformNode } from 'babylonjs';
+import {
+  Mesh,
+  MeshBuilder,
+  PhysicsImpostor,
+  Scene,
+  TransformNode,
+} from 'babylonjs';
 import { assert } from 'chai';
 import { __, all, either, equals, flatten, none, times } from 'ramda';
 
@@ -87,6 +93,13 @@ export class MultiCube {
                 (x - offset) * cubeSize,
                 (y - offset) * cubeSize,
                 (z - offset) * cubeSize,
+              );
+              mesh.physicsImpostor = new PhysicsImpostor(
+                mesh,
+                PhysicsImpostor.BoxImpostor,
+                {
+                  mass: 0,
+                },
               );
             }
             this.cubeMap.set(name, {

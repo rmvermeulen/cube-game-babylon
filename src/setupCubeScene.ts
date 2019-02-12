@@ -68,7 +68,7 @@ export const setupCubeScene = (scene: MyScene): (() => void) => {
 
   const playerDistance = cubeSize / 2 - playerDiameter;
   player.position.z += playerDistance;
-  let playerIsColliding = false;
+  // let playerIsColliding = false;
 
   const clampPlayer = {
     x: clamp(-playerDistance, playerDistance),
@@ -76,21 +76,22 @@ export const setupCubeScene = (scene: MyScene): (() => void) => {
   };
 
   return () => {
-    const playerWasColliding = playerIsColliding;
-    playerIsColliding = mc.intersects(player.mesh);
-    if (playerIsColliding !== playerWasColliding) {
-      if (playerIsColliding) {
-        debug(`player colliding`);
-        player.position = player.lastPosition;
-      }
-      if (playerWasColliding) {
-        debug(`player no longer colliding`);
-      }
-    }
+    // const playerWasColliding = playerIsColliding;
+    // playerIsColliding = mc.intersects(player.mesh);
+    // if (playerIsColliding !== playerWasColliding) {
+    //   if (playerIsColliding) {
+    //     debug(`player colliding`);
+    //     player.position = player.lastPosition;
+    //   }
+    //   if (playerWasColliding) {
+    //     debug(`player no longer colliding`);
+    //   }
+    // }
 
     skybox.rotate(Vector3.Down(), 2 / 1e4);
     const cubeIsRotating = !!cube.direction;
     if (cubeIsRotating) {
+      player.freeze();
       let reset = false;
       let rotationStepSize = 5;
 
@@ -144,9 +145,11 @@ export const setupCubeScene = (scene: MyScene): (() => void) => {
         }
       }
     } else {
-      if (!playerIsColliding) {
-        player.update();
-      }
+      player.unfreeze();
+      player.update();
+      // if (!playerIsColliding) {
+      //   player.update();
+      // }
     }
 
     const { position } = player;

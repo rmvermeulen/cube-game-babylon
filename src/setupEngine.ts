@@ -1,4 +1,5 @@
-import { Engine, Scene, Vector3 } from 'babylonjs';
+import { CannonJSPlugin, Engine, Vector3 } from 'babylonjs';
+import CANNON from 'cannon';
 import Combokeys from 'combokeys';
 
 import { createGUI } from './createGUI';
@@ -8,6 +9,8 @@ import { setupCamera } from './setupCamera';
 import { setupCubeScene } from './setupCubeScene';
 
 const debug = logger('engine');
+
+window.CANNON = CANNON;
 
 const getRenderCanvas = (): HTMLCanvasElement => {
   const maybeCanvas = document.getElementById('renderCanvas');
@@ -29,8 +32,9 @@ export const setupEngine = () => {
   const combos = new Combokeys(canvas);
   const scene = new MyScene({ engine, combos });
 
-  scene.gravity = new Vector3(0, -9.81, 0);
-  scene.collisionsEnabled = true;
+  const gravity = new Vector3(0, -9.81, 0);
+  const physicsPlugin = new CannonJSPlugin();
+  scene.enablePhysics(gravity, physicsPlugin);
 
   const updateScene = setupCubeScene(scene);
   createGUI(scene);
